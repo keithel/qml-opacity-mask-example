@@ -51,31 +51,110 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+import QtLocation 5.15
+import QtPositioning 5.15
+import QtQuick.Layouts 1.15
 
 ApplicationWindow {
     width: 300
     height: 300
     visible: true
 
-    Image {
-        id: bug
-        source: "images/bug.jpg"
-        sourceSize: Qt.size(parent.width, parent.height)
-        smooth: true
-        visible: false
+    Plugin {
+        id: mapPlugin
+        name: "osm" // "mapboxgl", "esri", ...
+        // specify plugin parameters if necessary
+        // PluginParameter {
+        //     name:
+        //     value:
+        // }
     }
 
-    Image {
-        id: mask
-        source: "images/butterfly.png"
-        sourceSize: Qt.size(parent.width, parent.height)
-        smooth: true
-        visible: false
-    }
+    ColumnLayout {
+        anchors.fill: parent
+        visible: true
 
-    OpacityMask {
-        anchors.fill: bug
-        source: bug
-        maskSource: mask
+        Item {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            visible: true
+
+            Map {
+                id: map
+                anchors.fill: parent
+                opacity: 0
+                plugin: mapPlugin
+                center: QtPositioning.coordinate(59.91, 10.75) // Oslo
+                zoomLevel: 14
+                Shortcut {
+                    enabled: map.zoomLevel < map.maximumZoomLevel
+                    sequence: StandardKey.ZoomIn
+                    onActivated: map.zoomLevel = Math.round(map.zoomLevel + 1)
+                }
+                Shortcut {
+                    enabled: map.zoomLevel > map.minimumZoomLevel
+                    sequence: StandardKey.ZoomOut
+                    onActivated: map.zoomLevel = Math.round(map.zoomLevel - 1)
+                }
+            }
+
+            Image {
+                id: bug
+                anchors.fill: parent
+                source: "images/bug.jpg"
+                sourceSize: Qt.size(parent.width, parent.height)
+                smooth: true
+                visible: false
+            }
+
+            Image {
+                id: butterflyMask
+                anchors.fill: parent
+                source: "images/butterfly.png"
+                sourceSize: Qt.size(parent.width, parent.height)
+                smooth: true
+                visible: false
+            }
+
+            Rectangle {
+                id: rectangleMask
+                anchors.fill: parent
+                radius: width/2
+                visible: false
+            }
+
+            OpacityMask {
+                id: opacityMask
+                anchors.fill: bug
+                source: bug
+                maskSource: butterflyMask
+            }
+        }
+
+        ButtonPanel {
+            sources: [ "Bug", "Map" ]
+            masks: [ "Butterfly", "Rectangle"]
+            source: "bug"
+            mask: "butterfly"
+            onSourceChanged: {
+                if (source === "bug")
+                    opacityMask.source = bug
+                else if (source === "map")
+                    opacityMask.source = map
+                else
+                    console.log("No such source " + source)
+            }
+            onMaskChanged: {
+                if (mask === "butterfly")
+                {
+                    opacityMask.maskSource = butterflyMask
+                }
+                else if (mask === "rectangle") {
+                    opacityMask.maskSource = rectangleMask
+                }
+                else
+                    console.log("No such mask " + mask)
+            }
+        }
     }
 }

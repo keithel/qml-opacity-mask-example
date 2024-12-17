@@ -14,7 +14,7 @@ endif()
 set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/location/${PROJECT_NAME}")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui QuickControls2 Qml)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui QuickControls2 Location Qml)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -37,6 +37,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         VERSION 1.0
         QML_FILES
             "qml/Main6.qml"
+            "qml/ButtonPanel.qml"
         RESOURCES
             # List relative path to resources here
             qml/images/bug.jpg
@@ -62,6 +63,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt::Core
     Qt::Gui
     Qt::QuickControls2
+    Qt::Location
     Qt::Qml
 )
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

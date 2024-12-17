@@ -3,5 +3,6 @@
         <file>qml/main5.qml</file>
         <file>qml/images/bug.jpg</file>
         <file>qml/images/butterfly.png</file>
+        <file>qml/ButtonPanel.qml</file>
     </qresource>
 </RCC>
