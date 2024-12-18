@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 ColumnLayout {
-    id: top
+    id: base
     property var sources
     property var masks
     property string source
@@ -12,7 +12,7 @@ ColumnLayout {
     RowLayout {
         id: sourceLayout
         Component.onCompleted: {
-            for (let i = 0; i < sources.length; i++) {
+            for (let i = 0; i < base.sources.length; i++) {
                 if (source.toLowerCase() === sources[i].toLowerCase()) {
                     sourceLayout.children[i+1].toggle()
                 }
@@ -20,9 +20,17 @@ ColumnLayout {
         }
 
         ButtonGroup {
-            buttons: sourceLayout.children
+            id: sourceButGroup
+            Component.onCompleted: {
+                if (typeof(sourceLayout.children.filter) === "function")
+                    sourceButGroup.buttons = Qt.binding(function() {
+                        return sourceLayout.children.filter(child => child instanceof RadioButton)}
+                    )
+                else
+                    sourceButGroup.buttons = Qt.binding(function() { return sourceLayout.children })
+            }
             onClicked: (but) => {
-                top.source = but.text.toLowerCase()
+                base.source = but.text.toLowerCase()
             }
         }
 
@@ -30,16 +38,17 @@ ColumnLayout {
             text: "Source"
         }
         Repeater {
-            model: sources
+            model: base.sources
             RadioButton {
-                text: sources[index]
+                required property string modelData
+                text: modelData
             }
         }
     }
     RowLayout {
         id: maskLayout
         Component.onCompleted: {
-            for (let i = 0; i < masks.length; i++) {
+            for (let i = 0; i < base.masks.length; i++) {
                 if (mask.toLowerCase() === masks[i].toLowerCase()) {
                     maskLayout.children[i+1].toggle()
                 }
@@ -47,10 +56,17 @@ ColumnLayout {
         }
 
         ButtonGroup {
-            buttons: maskLayout.children
+            id: maskButGroup
+            Component.onCompleted: {
+                if (typeof(maskLayout.children.filter) === "function")
+                    maskButGroup.buttons = Qt.binding(function() {
+                        return maskLayout.children.filter(child => child instanceof RadioButton)}
+                    )
+                else
+                    maskButGroup.buttons = Qt.binding(function() { return maskLayout.children })
+            }
             onClicked: (but) => {
-                console.log("but.text: " + but.text + " lower: " + but.text.toLowerCase())
-                top.mask = but.text.toLowerCase()
+                base.mask = but.text.toLowerCase()
             }
         }
 
@@ -58,9 +74,10 @@ ColumnLayout {
             text: "Mask"
         }
         Repeater {
-            model: masks
+            model: base.masks
             RadioButton {
-                text: masks[index]
+                required property string modelData
+                text: modelData
             }
         }
     }
